@@ -1,22 +1,50 @@
 package com.fulfilment.application.monolith.stores;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.Cacheable;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 
 @Entity
 @Cacheable
-public class Store extends PanacheEntity {
+public class Store {
 
-  @Column(length = 40, unique = true)
-  public String name;
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "store_seq")
+  @SequenceGenerator(name = "store_seq", sequenceName = "store_seq", allocationSize = 1)
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private Long id;
 
-  public int quantityProductsInStock;
+  @Column(length = 40, unique = true, nullable = false)
+  private String name;
 
+  @Column
+  private int quantityProductsInStock;
+
+  // ---------- Default constructor required by JPA ----------
   public Store() {}
 
+  // ---------- Convenience constructor ----------
   public Store(String name) {
     this.name = name;
+  }
+
+  // ---------- Getters & Setters ----------
+  public Long getId() {
+    return id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public int getQuantityProductsInStock() {
+    return quantityProductsInStock;
+  }
+
+  public void setQuantityProductsInStock(int quantityProductsInStock) {
+    this.quantityProductsInStock = quantityProductsInStock;
   }
 }
