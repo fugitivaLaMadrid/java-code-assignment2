@@ -9,13 +9,35 @@ public class Location {
   // maximum capacity of the location summing all the warehouse capacities
   private int maxCapacity;
 
+
   public Location(String identification, int maxNumberOfWarehouses, int maxCapacity) {
     this.identification = identification;
     this.maxNumberOfWarehouses = maxNumberOfWarehouses;
     this.maxCapacity = maxCapacity;
   }
 
-    public String getIdentification() {
-        return identification;
-    }
+  public String getIdentification() {
+    return identification;
+  }
+
+  public void setIdentification(String identifier) {
+    this.identification = identifier;
+  }
+
+  public int getMaxNumberOfWarehouses() {
+    return maxNumberOfWarehouses;
+  }
+
+  public void setMaxNumberOfWarehouses(int maxNumberOfWarehouses) {
+    this.maxNumberOfWarehouses = maxNumberOfWarehouses;
+  }
+
+  public int getMaxCapacity() {
+    return maxCapacity;
+  }
+
+  public void setMaxCapacity(int maxCapacity) {
+    this.maxCapacity = maxCapacity;
+  }
+
 }

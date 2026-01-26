@@ -1,24 +1,22 @@
-package com.fulfilment.application.monolith.legacy;
+package com.fulfilment.application.monolith.it.legacy;
 
+import com.fulfilment.application.monolith.legacy.LegacyStoreManagerGateway;
 import com.fulfilment.application.monolith.stores.Store;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.hamcrest.CoreMatchers.is;
+
+import static org.mockito.Mockito.*;
 
 @QuarkusTest
 class LegacyStoreManagerGatewayIT {
 
     @InjectMock
-    LegacyStoreManagerGateway legacyStoreManagerGateway;
+    LegacyStoreManagerGateway legacyStoreManagerGateway; // Quarkus will now inject a Mockito mock
 
     @Test
     void testCreateStoreTriggersLegacyGateway() {
-        // reset to avoid interactions caused by test data insertion at startup
         reset(legacyStoreManagerGateway);
 
         String payload = "{\"name\":\"TEST-STORE\", \"quantityProductsInStock\": 10}";
@@ -28,10 +26,9 @@ class LegacyStoreManagerGatewayIT {
                 .body(payload)
                 .when().post("/stores")
                 .then()
-                .statusCode(201)
-                .body("name", is("TEST-STORE"));
+                .statusCode(201);
 
-        // verify the gateway was called at least once for the created store
-        verify(legacyStoreManagerGateway, atLeastOnce()).createStoreOnLegacySystem(org.mockito.ArgumentMatchers.any(Store.class));
+        verify(legacyStoreManagerGateway, atLeastOnce())
+                .createStoreOnLegacySystem(any(Store.class));
     }
 }

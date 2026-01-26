@@ -1,5 +1,7 @@
-package com.fulfilment.application.monolith.stores;
+package com.fulfilment.application.monolith.it.stores;
 
+import com.fulfilment.application.monolith.stores.Store;
+import com.fulfilment.application.monolith.stores.StoreRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;

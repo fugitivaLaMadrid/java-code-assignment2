@@ -1,5 +1,6 @@
-package com.fulfilment.application.monolith.location;
+package com.fulfilment.application.monolith.it.location;
 
+import com.fulfilment.application.monolith.location.LocationGateway;
 import com.fulfilment.application.monolith.warehouses.domain.models.Location;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
