@@ -2,14 +2,19 @@ package com.fulfilment.application.monolith.location;
 
 import com.fulfilment.application.monolith.warehouses.domain.models.Location;
 import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@ApplicationScoped
 public class LocationGateway implements LocationResolver {
 
-  private static final List<Location> locations = new ArrayList<>();
+  private final List<Location> locations = new ArrayList<>();
 
-  static {
+  @PostConstruct
+  void init() {
     locations.add(new Location("ZWOLLE-001", 1, 40));
     locations.add(new Location("ZWOLLE-002", 2, 50));
     locations.add(new Location("AMSTERDAM-001", 5, 100));
@@ -20,16 +25,15 @@ public class LocationGateway implements LocationResolver {
     locations.add(new Location("VETSBY-001", 1, 90));
   }
 
-  /**
-   * This method to find a location by its identifier.
-   * **/
   @Override
   public Location resolveByIdentifier(String identifier) {
     return locations.stream()
             .filter(location -> location.getIdentification().equals(identifier))
             .findFirst()
             .orElseThrow(() ->
-                    new UnsupportedOperationException("Unimplemented method 'resolveByIdentifier': " + identifier)
+                    new UnsupportedOperationException(
+                            "Unimplemented method 'resolveByIdentifier': " + identifier
+                    )
             );
   }
 }
