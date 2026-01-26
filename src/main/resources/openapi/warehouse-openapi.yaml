@@ -1,4 +1,5 @@
 openapi: 3.0.0
+
 info:
   title: Warehouse API
   description: API for managing products in a warehouse
@@ -7,18 +8,35 @@ info:
 paths:
   /warehouse:
     get:
-      summary: List all warehouses units
+      summary: List warehouse units
+      operationId: listWarehouseUnits
+      parameters:
+        - name: location
+          in: query
+          description: Filter warehouses by location
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum number of results to return
+          required: false
+          schema:
+            type: integer
+            format: int32
       responses:
         '200':
-          description: A list of warehouse units
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Warehouse'
+
     post:
       summary: Create a new warehouse unit
+      operationId: createWarehouseUnit
       requestBody:
         required: true
         content:
@@ -27,7 +45,7 @@ paths:
               $ref: '#/components/schemas/Warehouse'
       responses:
         '201':
-          description: Warehouse unit created
+          description: Created
           content:
             application/json:
               schema:
@@ -35,52 +53,54 @@ paths:
 
   /warehouse/{id}:
     get:
-      summary: Get a warehouse unit by ID
+      summary: Get warehouse unit by ID
+      operationId: getWarehouseUnitById
       parameters:
         - name: id
           in: path
           required: true
-          description: ID of the warehouse unit to get
           schema:
             type: string
       responses:
         '200':
-          description: Warehouse unit found
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Warehouse'
         '404':
-          description: Warehouse unit not found
+          description: Not Found
+
     delete:
-      summary: Archive a warehouse unit by ID
+      summary: Delete warehouse unit by ID
+      operationId: deleteWarehouseUnitById
       parameters:
         - name: id
           in: path
           required: true
-          description: ID of the warehouse unit to archive
           schema:
             type: string
       responses:
         '204':
-          description: Warehouse unit archived
+          description: No Content
         '404':
-          description: Warehouse unit not found
+          description: Not Found
 
 components:
   schemas:
     Warehouse:
       type: object
+      required:
+        - location
+        - capacity
       properties:
         id:
           type: string
-          example: "456"
         location:
           type: string
-          example: "Aisle 1, Shelf 2"
         capacity:
           type: integer
-          example: 100
+          format: int32
         stock:
           type: integer
-          example: 50
+          format: int32

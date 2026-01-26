@@ -4,20 +4,31 @@ import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.ports.ArchiveWarehouseOperation;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class ArchiveWarehouseUseCase implements ArchiveWarehouseOperation {
 
   private final WarehouseStore warehouseStore;
 
+  @Inject
   public ArchiveWarehouseUseCase(WarehouseStore warehouseStore) {
     this.warehouseStore = warehouseStore;
   }
 
   @Override
   public void archive(Warehouse warehouse) {
-    // TODO implement this method
+    if (warehouse == null || warehouse.businessUnitCode == null) {
+      throw new IllegalArgumentException("Warehouse id must be provided");
+    }
 
-    warehouseStore.update(warehouse);
+    Warehouse existing = warehouseStore.findByBusinessUnitCode(warehouse.businessUnitCode);
+    if (existing == null) {
+      throw new IllegalArgumentException(
+              "Warehouse not found: " + warehouse.businessUnitCode
+      );
+    }
+
+    warehouseStore.remove(existing);
   }
 }
