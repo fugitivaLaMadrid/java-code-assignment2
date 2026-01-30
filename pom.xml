@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,7 +15,7 @@
     <properties>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.version>3.13.3</quarkus.platform.version>
+        <quarkus.platform.version>3.31.1</quarkus.platform.version>
 
         <maven.compiler.release>17</maven.compiler.release>
 
@@ -47,33 +48,22 @@
     <dependencies>
 
         <!-- Core Quarkus -->
-        <!-- Quarkus test framework (REQUIRED) -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit5</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm-panache</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jdbc-postgresql</artifactId>
         </dependency>
-
-        <!-- OpenAPI / Swagger -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-swagger-ui</artifactId>
@@ -82,44 +72,27 @@
         <dependency>
             <groupId>io.quarkiverse.openapi.generator</groupId>
             <artifactId>quarkus-openapi-generator-server</artifactId>
-            <version>2.4.7</version>
+            <version>2.14.0</version> <!-- compatible with Quarkus 3.31.x -->
         </dependency>
 
         <!-- ===================== -->
         <!-- Testing -->
         <!-- ===================== -->
-
-        <!-- JUnit 5 -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.10.0</version>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit</artifactId> <!-- replaces quarkus-junit5 -->
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.10.0</version>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit-mockito</artifactId> <!-- replaces quarkus-junit5-mockito -->
             <scope>test</scope>
         </dependency>
-
-        <!-- Mockito -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.5.0</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- REST-assured -->
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- JaCoCo -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jacoco</artifactId>
@@ -152,12 +125,10 @@
                 <version>${surefire-plugin.version}</version>
                 <configuration>
                     <includes>
-                        <include>**/*UnitTest.java</include>
+                        <include>**/*Test.java</include>
                     </includes>
                     <systemPropertyVariables>
-                        <java.util.logging.manager>
-                            org.jboss.logmanager.LogManager
-                        </java.util.logging.manager>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -169,14 +140,11 @@
                 <version>${failsafe-plugin.version}</version>
                 <configuration>
                     <includes>
-                        <!-- Include ITs -->
                         <include>**/*IT.java</include>
                     </includes>
-                    <excludes>
-                        <!-- Exclude specific ITs -->
-                        <exclude>**/WarehouseEndpointIT.java</exclude>
-                        <exclude>**/LegacyStoreManagerGatewayIT.java</exclude>
-                    </excludes>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>
@@ -190,9 +158,10 @@
 
             <!-- Quarkus -->
             <plugin>
-                <groupId>${quarkus.platform.group-id}</groupId>
+                <groupId>io.quarkus.platform</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
                 <version>${quarkus.platform.version}</version>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <goals>

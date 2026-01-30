@@ -1,14 +1,24 @@
+-- ---------------------------
+-- Stores
+-- ---------------------------
 INSERT INTO store(id, name, quantityProductsInStock) VALUES (1, 'HAARLEM', 10);
 INSERT INTO store(id, name, quantityProductsInStock) VALUES (2, 'AMSTERDAM', 5);
 INSERT INTO store(id, name, quantityProductsInStock) VALUES (3, 'HENGELO', 3);
 ALTER SEQUENCE store_seq RESTART WITH 4;
 
+-- ---------------------------
+-- Products
+-- ---------------------------
 INSERT INTO product(id, name, stock) VALUES (1, 'TONSTAD', 10);
 INSERT INTO product(id, name, stock) VALUES (2, 'KALLAX', 5);
 INSERT INTO product(id, name, stock) VALUES (3, 'BESTÅ', 3);
-ALTER SEQUENCE product_seq RESTART WITH 4;
+INSERT INTO product(id, name, stock) VALUES (4, 'MALM', 7); -- added to fix runtime error
+ALTER SEQUENCE product_seq RESTART WITH 5;
 
-INSERT INTO warehouse(id, businessUnitCode, location, capacity, stock, createdAt, archivedAt) 
+-- ---------------------------
+-- Warehouses
+-- ---------------------------
+INSERT INTO warehouse(id, businessUnitCode, location, capacity, stock, createdAt, archivedAt)
 VALUES (1, 'MWH.001', 'ZWOLLE-001', 100, 10, '2024-07-01', null);
 INSERT INTO warehouse(id, businessUnitCode, location, capacity, stock, createdAt, archivedAt)
 VALUES (2, 'MWH.012', 'AMSTERDAM-001', 50, 5, '2023-07-01', null);

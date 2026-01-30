@@ -15,8 +15,10 @@ import java.time.LocalDateTime;
 public class DbWarehouse {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "warehouse_seq")
+  @SequenceGenerator(name = "warehouse_seq", sequenceName = "warehouse_seq", allocationSize = 1)
   public Long id;
+
 
   @Column(name = "businessUnitCode")
   public String businessUnitCode;
