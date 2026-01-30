@@ -4,15 +4,12 @@ import com.fulfilment.application.monolith.warehouses.domain.models.Location;
 import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
 import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
-import com.fulfilment.application.monolith.warehouses.domain.usecases.CreateWarehouseUseCase;
 import com.fulfilment.application.monolith.warehouses.domain.usecases.ReplaceWarehouseUseCase;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class ReplaceWarehouseUseCaseUnitTest {

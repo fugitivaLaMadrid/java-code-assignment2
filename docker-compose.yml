@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: example
     ports:
-      - "15432:5432" # localhost:15432 maps to container's 5432
+      - "15432:5432" # host port maps to container port
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -17,6 +17,22 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  quarkus-app:
+    image: quay.io/quarkus/ubi-quarkus-native-image:22.3-java17
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      QUARKUS_DATASOURCE_USERNAME: postgres
+      QUARKUS_DATASOURCE_PASSWORD: example
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/postgres
+      QUARKUS_HTTP_TEST_PORT: 8085
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
 
   adminer:
     image: adminer:latest
