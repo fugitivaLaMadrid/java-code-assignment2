@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-public class ReplaceWarehouseUseCaseUnitTest {
+class ReplaceWarehouseUseCaseUnitTest {
 
     private WarehouseStore store;
     private LocationResolver resolver;
@@ -30,7 +30,7 @@ public class ReplaceWarehouseUseCaseUnitTest {
     @Test
     void shouldRejectIfNoExisting() {
         Warehouse w = new Warehouse();
-        w.businessUnitCode = "B1";
+        w.setBusinessUnitCode("B1");
         when(store.findByBusinessUnitCode("B1")).thenReturn(null);
 
         assertThrows(IllegalArgumentException.class, () -> useCase.replace(w));
@@ -39,13 +39,13 @@ public class ReplaceWarehouseUseCaseUnitTest {
     @Test
     void shouldRejectIfStockMismatch() {
         Warehouse existing = new Warehouse();
-        existing.businessUnitCode = "B2";
-        existing.stock = 5;
+        existing.setBusinessUnitCode("B2");
+        existing.setStock(5);
         when(store.findByBusinessUnitCode("B2")).thenReturn(existing);
 
         Warehouse newW = new Warehouse();
-        newW.businessUnitCode = "B2";
-        newW.stock = 3; // mismatch
+        newW.setBusinessUnitCode("B2");
+        newW.setStock(3);
 
         assertThrows(IllegalArgumentException.class, () -> useCase.replace(newW));
     }
@@ -53,10 +53,10 @@ public class ReplaceWarehouseUseCaseUnitTest {
     void shouldReplaceWarehouseSuccessfully() {
         // given
         Warehouse warehouse = new Warehouse();
-        warehouse.businessUnitCode = "1";
-        warehouse.location = "ZWOLLE-001";
-        warehouse.capacity = 40;
-        warehouse.stock = 10;
+        warehouse.setBusinessUnitCode("1");
+        warehouse.setLocation("ZWOLLE-001");
+        warehouse.setCapacity(40);
+        warehouse.setStock(10);
 
         when(store.findByBusinessUnitCode("1")).thenReturn(warehouse);
         when(resolver.resolveByIdentifier("ZWOLLE-001"))

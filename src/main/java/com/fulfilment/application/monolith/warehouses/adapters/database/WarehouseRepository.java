@@ -5,6 +5,7 @@ import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -13,28 +14,28 @@ import java.util.List;
 @ApplicationScoped
 public class WarehouseRepository implements WarehouseStore, PanacheRepository<DbWarehouse> {
 
-  private static final String BUSINESS_UNICODE = "businessUnitCode";
+  public static final String BUSINESS_UNICODE = "businessUnitCode";
 
   // Convert DbWarehouse -> Domain
   private Warehouse toDomain(DbWarehouse db) {
     if (db == null) return null;
     Warehouse w = new Warehouse();
-    w.businessUnitCode = db.businessUnitCode != null ? db.businessUnitCode : (db.id != null ? db.id.toString() : null);
-    w.location = db.location;
-    w.capacity = db.capacity;
-    w.stock = db.stock;
-    if (db.createdAt != null) w.creationAt = db.createdAt.atZone(ZoneId.systemDefault());
-    if (db.archivedAt != null) w.archivedAt = db.archivedAt.atZone(ZoneId.systemDefault());
+    w.setBusinessUnitCode(db.businessUnitCode != null ? db.businessUnitCode : (db.id != null ? db.id.toString() : null));
+    w.setLocation(db.location);
+    w.setCapacity(db.capacity);
+    w.setStock(db.stock);
+    if (db.createdAt != null) w.setCreationAt(db.createdAt.atZone(ZoneId.systemDefault()));
+    if (db.archivedAt != null) w.setArchivedAt(db.archivedAt.atZone(ZoneId.systemDefault()));
     return w;
   }
 
   // Convert Domain -> DbWarehouse
   private DbWarehouse toDb(Warehouse w) {
     DbWarehouse db = new DbWarehouse();
-    db.businessUnitCode = w.businessUnitCode;
-    db.location = w.location;
-    db.capacity = w.capacity;
-    db.stock = w.stock;
+    db.businessUnitCode = w.getBusinessUnitCode();
+    db.location = w.getLocation();
+    db.capacity = w.getCapacity();
+    db.stock = w.getStock();
     db.createdAt = LocalDateTime.now();
     return db;
   }
@@ -44,27 +45,39 @@ public class WarehouseRepository implements WarehouseStore, PanacheRepository<Db
   public void create(Warehouse warehouse) {
     DbWarehouse db = toDb(warehouse);
     persist(db);
-    warehouse.businessUnitCode = db.id != null ? db.id.toString() : warehouse.businessUnitCode;
+    warehouse.setBusinessUnitCode(db.id != null ? db.id.toString() : warehouse.getBusinessUnitCode());
   }
 
   @Override
   public void update(Warehouse warehouse) {
-    DbWarehouse db = find(BUSINESS_UNICODE, warehouse.businessUnitCode).firstResult();
+    DbWarehouse db = find(BUSINESS_UNICODE, warehouse.getBusinessUnitCode()).firstResult();
     if (db == null) return;
-    db.location = warehouse.location;
-    db.capacity = warehouse.capacity;
-    db.stock = warehouse.stock;
-    if (warehouse.archivedAt != null) db.archivedAt = warehouse.archivedAt.toLocalDateTime();
+    db.location = warehouse.getLocation();
+    db.capacity = warehouse.getCapacity();
+    db.stock = warehouse.getStock();
+    if (warehouse.getArchivedAt()!= null) db.archivedAt = warehouse.getArchivedAt().toLocalDateTime();
     persist(db);
   }
 
   @Override
-  public void remove(Warehouse warehouse) {
-    DbWarehouse db = find(BUSINESS_UNICODE, warehouse.businessUnitCode).firstResult();
+  public void archiveByBusinessUnitCode(String warehouse) {
+    DbWarehouse db = find(BUSINESS_UNICODE, warehouse).firstResult();
     if (db == null) return;
     db.archivedAt = LocalDateTime.now();
     persist(db);
   }
+
+  @Override
+    public void save(Warehouse warehouse) {
+        DbWarehouse db = find(BUSINESS_UNICODE, warehouse.getBusinessUnitCode()).firstResult();
+        if (db == null) {
+        create(warehouse);
+        } else {
+        update(warehouse);
+        }
+    }
+
+
 
   // Domain-returning methods
   @Override

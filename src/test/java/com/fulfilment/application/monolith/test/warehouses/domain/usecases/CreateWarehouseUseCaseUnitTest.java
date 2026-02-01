@@ -22,9 +22,9 @@ class CreateWarehouseUseCaseUnitTest {
     @Test
     void shouldCreateWarehouse() {
         Warehouse w = new Warehouse();
-        w.location = "ZWOLLE-001";
-        w.capacity = 10;
-        w.stock = 5;
+        w.setLocation( "ZWOLLE-001");
+        w.setCapacity(10);
+        w.setStock(5);
 
         Location location = new Location("ZWOLLE-001", 5, 100);
 
@@ -40,9 +40,9 @@ class CreateWarehouseUseCaseUnitTest {
     @Test
     void shouldRejectIfLocationInvalid() {
         Warehouse w = new Warehouse();
-        w.location = "INVALID";
-        w.capacity = 10;
-        w.stock = 5;
+        w.setLocation("INVALID");
+        w.setCapacity(10);
+        w.setStock(5);
 
         when(resolver.resolveByIdentifier("INVALID"))
                 .thenThrow(new RuntimeException("not found"));
@@ -54,9 +54,9 @@ class CreateWarehouseUseCaseUnitTest {
     @Test
     void shouldRejectIfCapacityTooLargeForLocation() {
         Warehouse w = new Warehouse();
-        w.location = "ZWOLLE-001";
-        w.capacity = 90;
-        w.stock = 10;
+        w.setLocation("ZWOLLE-001");
+        w.setCapacity( 90);
+        w.setStock(10);
 
         Location location = new Location("ZWOLLE-001", 5, 80);
 

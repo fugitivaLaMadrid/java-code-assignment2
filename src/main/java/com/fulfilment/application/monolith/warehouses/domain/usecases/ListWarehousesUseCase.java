@@ -1,5 +1,6 @@
 package com.fulfilment.application.monolith.warehouses.domain.usecases;
 
+import com.fulfilment.application.monolith.warehouses.adapters.database.JpaStore;
 import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
 
@@ -11,7 +12,7 @@ public class ListWarehousesUseCase {
 
     private final WarehouseStore store;
 
-    public ListWarehousesUseCase(WarehouseStore store) {
+    public ListWarehousesUseCase(@JpaStore WarehouseStore store) {
         this.store = store;
     }
 

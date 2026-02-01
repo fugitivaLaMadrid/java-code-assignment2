@@ -4,8 +4,11 @@
 INSERT INTO store(id, name, quantityProductsInStock) VALUES (1, 'HAARLEM', 10);
 INSERT INTO store(id, name, quantityProductsInStock) VALUES (2, 'AMSTERDAM', 5);
 INSERT INTO store(id, name, quantityProductsInStock) VALUES (3, 'HENGELO', 3);
-ALTER SEQUENCE store_seq RESTART WITH 4;
 
+-- Add dummy entries for tests
+INSERT INTO store(id, name, quantityProductsInStock) VALUES (9999, 'DUMMY STORE', 0);
+
+ALTER SEQUENCE store_seq RESTART WITH 10000;
 -- ---------------------------
 -- Products
 -- ---------------------------
@@ -24,4 +27,9 @@ INSERT INTO warehouse(id, businessUnitCode, location, capacity, stock, createdAt
 VALUES (2, 'MWH.012', 'AMSTERDAM-001', 50, 5, '2023-07-01', null);
 INSERT INTO warehouse(id, businessUnitCode, location, capacity, stock, createdAt, archivedAt)
 VALUES (3, 'MWH.023', 'TILBURG-001', 30, 27, '2021-02-01', null);
-ALTER SEQUENCE warehouse_seq RESTART WITH 4;
+INSERT INTO warehouse(id, businessUnitCode, location, capacity, stock, createdAt, archivedAt)
+VALUES (4, 'MWH.045', 'AMSTERDAM-002', 70, 15, '2025-01-01', null);
+INSERT INTO warehouse(id, businessUnitCode, location, capacity, stock, createdAt, archivedAt)
+VALUES (5, 'MWH.056', 'ZWOLLE-002', 60, 8, '2025-02-01', null);
+
+ALTER SEQUENCE warehouse_seq RESTART WITH 6;

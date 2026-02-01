@@ -26,36 +26,36 @@ class ListWarehousesUseCaseUnitTest {
     @Test
     void list_noLocation_noLimit() {
         Warehouse w1 = new Warehouse();
-        w1.businessUnitCode = "WH-001";
+        w1.setBusinessUnitCode("WH-001");
 
         Warehouse w2 = new Warehouse();
-        w2.businessUnitCode = "WH-002";
+        w2.setBusinessUnitCode("WH-002");
 
         when(store.findByLocation(null)).thenReturn(List.of(w1, w2));
 
         List<Warehouse> result = useCase.list(null, null);
 
         assertEquals(2, result.size());
-        assertEquals("WH-001", result.get(0).businessUnitCode);
-        assertEquals("WH-002", result.get(1).businessUnitCode);
+        assertEquals("WH-001", result.get(0).getBusinessUnitCode());
+        assertEquals("WH-002", result.get(1).getBusinessUnitCode());
     }
 
     @Test
     void list_withLocationAndLimit() {
         Warehouse w1 = new Warehouse();
-        w1.businessUnitCode = "WH-001";
-        w1.location = "AMSTERDAM";
+        w1.setBusinessUnitCode("WH-001");
+        w1.setLocation("AMSTERDAM");
 
         Warehouse w2 = new Warehouse();
-        w2.businessUnitCode = "WH-002";
-        w2.location = "AMSTERDAM";
+        w2.setBusinessUnitCode("WH-002");
+        w2.setLocation("AMSTERDAM");
 
         when(store.findByLocation("AMSTERDAM")).thenReturn(List.of(w1, w2));
 
         List<Warehouse> result = useCase.list("AMSTERDAM", 1);
 
         assertEquals(1, result.size());
-        assertEquals("WH-001", result.get(0).businessUnitCode);
+        assertEquals("WH-001", result.get(0).getBusinessUnitCode());
     }
 
     @Test

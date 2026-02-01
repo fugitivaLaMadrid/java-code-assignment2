@@ -17,7 +17,7 @@ public class Store {
   private String name;
 
   @Column
-  private int quantityProductsInStock;
+  private Integer quantityProductsInStock; // changed from int → Integer
 
   // ---------- Default constructor required by JPA ----------
   public Store() {}
@@ -40,11 +40,11 @@ public class Store {
     this.name = name;
   }
 
-  public int getQuantityProductsInStock() {
+  public Integer getQuantityProductsInStock() {
     return quantityProductsInStock;
   }
 
-  public void setQuantityProductsInStock(int quantityProductsInStock) {
+  public void setQuantityProductsInStock(Integer quantityProductsInStock) {
     this.quantityProductsInStock = quantityProductsInStock;
   }
 }

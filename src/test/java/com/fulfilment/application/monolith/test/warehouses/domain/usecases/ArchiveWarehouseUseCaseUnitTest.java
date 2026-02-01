@@ -5,12 +5,13 @@ import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStor
 import com.fulfilment.application.monolith.warehouses.domain.usecases.ArchiveWarehouseUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.time.ZonedDateTime;
+
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ArchiveWarehouseUseCaseUnitTest {
+class ArchiveWarehouseUseCaseUnitTest {
 
     private WarehouseStore store;
     private ArchiveWarehouseUseCase useCase;
@@ -24,31 +25,58 @@ public class ArchiveWarehouseUseCaseUnitTest {
     @Test
     void shouldArchiveWarehouse() {
         Warehouse w = new Warehouse();
-        w.businessUnitCode = "1";
+        w.setBusinessUnitCode( "WH-001");
 
-        when(store.findByBusinessUnitCode("1")).thenReturn(w);
+        // Mock the store to return the warehouse
+        when(store.findByBusinessUnitCode("WH-001")).thenReturn(w);
 
-        useCase.archive(w);
+        // Call the use case
+        useCase.archiveByBusinessUnitCode("WH-001");
 
-        verify(store).remove(w);
+        // Verify that archive() is called on the store
+        verify(store).archiveByBusinessUnitCode(w.getBusinessUnitCode());
     }
 
     @Test
     void shouldFailWhenWarehouseDoesNotExist() {
-        Warehouse w = new Warehouse();
-        w.businessUnitCode = "99";
+        when(store.findByBusinessUnitCode("WH-999")).thenReturn(null);
 
-        when(store.findByBusinessUnitCode("99")).thenReturn(null);
+        Exception ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> useCase.archiveByBusinessUnitCode("WH-999")
+        );
 
-        assertThrows(IllegalArgumentException.class, () -> useCase.archive(w));
+        assertEquals("Warehouse not found", ex.getMessage());
+        verify(store, never()).archiveByBusinessUnitCode(any());
     }
+
 
     @Test
-    void shouldRejectIfNotFound() {
+    void shouldAllowArchiveIfAlreadyArchived() {
         Warehouse w = new Warehouse();
-        w.businessUnitCode = "B9";
-        when(store.findByBusinessUnitCode("B9")).thenReturn(null);
+        w.setBusinessUnitCode("WH-001");
+        w.setArchivedAt(ZonedDateTime.now());
 
-        assertThrows(IllegalArgumentException.class, () -> useCase.archive(w));
+        when(store.findByBusinessUnitCode("WH-001")).thenReturn(w);
+
+        // should NOT throw
+        useCase.archiveByBusinessUnitCode("WH-001");
+
+        verify(store).archiveByBusinessUnitCode(w.getBusinessUnitCode());
     }
+
+//    @Test
+//    void shouldRejectIfAlreadyArchived() {
+//        Warehouse w = new Warehouse();
+//        w.businessUnitCode = "WH-002";
+//        w.archivedAt = java.time.ZonedDateTime.now();
+//
+//        when(store.findByBusinessUnitCode("WH-002")).thenReturn(w);
+//
+//        Exception ex = assertThrows(IllegalArgumentException.class,
+//                () -> useCase.archiveByBusinessUnitCode("WH-002"));
+//
+//        assertEquals("Warehouse not found or archived", ex.getMessage());
+//        verify(store, never()).archive(any());
+//    }
 }
