@@ -1,5 +1,6 @@
 package com.fulfilment.application.monolith.warehouses.domain.usecases;
 
+import com.fulfilment.application.monolith.warehouses.adapters.database.JpaStore;
 import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.models.Location;
 import com.fulfilment.application.monolith.warehouses.domain.ports.CreateWarehouseOperation;
@@ -7,6 +8,7 @@ import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStor
 import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class CreateWarehouseUseCase implements CreateWarehouseOperation {
@@ -16,52 +18,53 @@ public class CreateWarehouseUseCase implements CreateWarehouseOperation {
 
   // Constructor for both CDI injection and unit tests
   @Inject
-  public CreateWarehouseUseCase(WarehouseStore warehouseStore, LocationResolver locationResolver) {
+  public CreateWarehouseUseCase(@JpaStore WarehouseStore warehouseStore, LocationResolver locationResolver) {
     this.warehouseStore = warehouseStore;
     this.locationResolver = locationResolver;
   }
 
+  @Transactional
   @Override
   public void create(Warehouse warehouse) {
     // Business Unit Code uniqueness
-    if (warehouse.businessUnitCode != null && warehouseStore.findByBusinessUnitCode(warehouse.businessUnitCode) != null) {
-      throw new IllegalArgumentException("Business Unit Code already exists: " + warehouse.businessUnitCode);
+    if (warehouse.getBusinessUnitCode() != null && warehouseStore.findByBusinessUnitCode(warehouse.getBusinessUnitCode()) != null) {
+      throw new IllegalArgumentException("Business Unit Code already exists: " + warehouse.getBusinessUnitCode());
     }
 
     // Location validation
-    if (warehouse.location == null) {
+    if (warehouse.getLocation() == null) {
       throw new IllegalArgumentException("Location must be provided");
     }
 
     Location location;
     try {
-      location = locationResolver.resolveByIdentifier(warehouse.location);
+      location = locationResolver.resolveByIdentifier(warehouse.getLocation());
     } catch (Exception e) {
-      throw new IllegalArgumentException("Invalid location: " + warehouse.location, e);
+      throw new IllegalArgumentException("Invalid location: " + warehouse.getLocation(), e);
     }
 
     if (location == null) {
-      throw new IllegalArgumentException("Invalid location: " + warehouse.location);
+      throw new IllegalArgumentException("Invalid location: " + warehouse.getLocation());
     }
 
     // Number of warehouses feasibility
-    long existing = warehouseStore.countByLocation(warehouse.location);
+    long existing = warehouseStore.countByLocation(warehouse.getLocation());
     if (existing >= location.getMaxNumberOfWarehouses()) {
-      throw new IllegalArgumentException("Maximum number of warehouses reached for location: " + warehouse.location);
+      throw new IllegalArgumentException("Maximum number of warehouses reached for location: " + warehouse.getLocation());
     }
 
     // Capacity and stock validation
-    if (warehouse.capacity == null || warehouse.capacity <= 0) {
+    if (warehouse.getCapacity() == null || warehouse.getCapacity() <= 0) {
       throw new IllegalArgumentException("Capacity must be positive");
     }
-    if (warehouse.stock == null || warehouse.stock < 0) {
+    if (warehouse.getStock() == null || warehouse.getStock() < 0) {
       throw new IllegalArgumentException("Stock must be non-negative");
     }
-    int used = warehouseStore.sumCapacityByLocation(warehouse.location);
-    if (used + warehouse.capacity > location.getMaxCapacity()) {
+    int used = warehouseStore.sumCapacityByLocation(warehouse.getLocation());
+    if (used + warehouse.getCapacity() > location.getMaxCapacity()) {
       throw new IllegalArgumentException("Capacity exceeds location maximum capacity");
     }
-    if (warehouse.stock > warehouse.capacity) {
+    if (warehouse.getStock() > warehouse.getCapacity()) {
       throw new IllegalArgumentException("Stock cannot exceed warehouse capacity");
     }
 

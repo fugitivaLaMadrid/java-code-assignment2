@@ -18,7 +18,7 @@ public interface WarehouseRepository {
     void save(DbWarehouse warehouse);
 
     // Archive warehouse
-    void archive(DbWarehouse warehouse);
+    void archiveByBusinessUnitCode(DbWarehouse warehouse);
 
     List<DbWarehouse> findByLocation(String location);
 

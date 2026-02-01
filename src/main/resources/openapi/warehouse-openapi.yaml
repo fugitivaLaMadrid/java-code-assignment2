@@ -2,8 +2,8 @@ openapi: 3.0.0
 
 info:
   title: Warehouse API
-  description: API for managing products in a warehouse
-  version: 1.0.0
+  description: API for managing warehouses
+  version: 1.1.0
 
 paths:
   /warehouse:
@@ -42,21 +42,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Warehouse'
+              $ref: '#/components/schemas/WarehouseCreate'
       responses:
-        '201':
+        '200':   # ← IMPORTANT: match your implementation
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Warehouse'
+        '422':
+          description: Validation error
 
-  /warehouse/{id}:
+  /warehouse/{businessUnitCode}:
     get:
-      summary: Get warehouse unit by ID
-      operationId: getWarehouseUnitById
+      summary: Get warehouse unit by businessUnitCode
+      operationId: getWarehouseUnitByBusinessUnitCode
       parameters:
-        - name: id
+        - name: businessUnitCode
           in: path
           required: true
           schema:
@@ -72,10 +74,10 @@ paths:
           description: Not Found
 
     delete:
-      summary: Delete warehouse unit by ID
-      operationId: deleteWarehouseUnitById
+      summary: Delete warehouse unit by businessUnitCode
+      operationId: deleteWarehouseUnitByBusinessUnitCode
       parameters:
-        - name: id
+        - name: businessUnitCode
           in: path
           required: true
           schema:
@@ -91,10 +93,29 @@ components:
     Warehouse:
       type: object
       required:
+        - businessUnitCode
         - location
         - capacity
       properties:
-        id:
+        businessUnitCode:
+          type: string
+        location:
+          type: string
+        capacity:
+          type: integer
+          format: int32
+        stock:
+          type: integer
+          format: int32
+
+    WarehouseCreate:
+      type: object
+      required:
+        - businessUnitCode
+        - location
+        - capacity
+      properties:
+        businessUnitCode:
           type: string
         location:
           type: string

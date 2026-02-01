@@ -4,16 +4,29 @@ import java.time.ZonedDateTime;
 
 public class Warehouse {
 
-  // unique identifier
-  public String businessUnitCode;
+  private String businessUnitCode;
+  private String location;
+  private Integer capacity;
+  private Integer stock;
+  private ZonedDateTime creationAt = ZonedDateTime.now();
+  private ZonedDateTime archivedAt;
 
-  public String location;
+  public String getBusinessUnitCode() { return businessUnitCode; }
+  public void setBusinessUnitCode(String businessUnitCode) { this.businessUnitCode = businessUnitCode; }
 
-  public Integer capacity;
+  public String getLocation() { return location; }
+  public void setLocation(String location) { this.location = location; }
 
-  public Integer stock;
+  public Integer getCapacity() { return capacity; }
+  public void setCapacity(Integer capacity) { this.capacity = capacity; }
 
-  public ZonedDateTime creationAt;
+  public Integer getStock() { return stock; }
+  public void setStock(Integer stock) { this.stock = stock; }
 
-  public ZonedDateTime archivedAt;
+  public ZonedDateTime getCreationAt() { return creationAt; }
+  public void setCreationAt(ZonedDateTime creationAt) {
+    this.creationAt =  creationAt; }
+
+  public ZonedDateTime getArchivedAt() { return archivedAt; }
+  public void setArchivedAt(ZonedDateTime archivedAt) { this.archivedAt = archivedAt; }
 }

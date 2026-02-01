@@ -1,34 +1,28 @@
 package com.fulfilment.application.monolith.warehouses.domain.usecases;
 
+import com.fulfilment.application.monolith.warehouses.adapters.database.JpaStore;
 import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
-import com.fulfilment.application.monolith.warehouses.domain.ports.ArchiveWarehouseOperation;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class ArchiveWarehouseUseCase implements ArchiveWarehouseOperation {
+public class ArchiveWarehouseUseCase {
 
   private final WarehouseStore warehouseStore;
 
-  @Inject
-  public ArchiveWarehouseUseCase(WarehouseStore warehouseStore) {
+  public ArchiveWarehouseUseCase(@JpaStore WarehouseStore warehouseStore) {
     this.warehouseStore = warehouseStore;
   }
 
-  @Override
-  public void archive(Warehouse warehouse) {
-    if (warehouse == null || warehouse.businessUnitCode == null) {
-      throw new IllegalArgumentException("Warehouse id must be provided");
+  public void archiveByBusinessUnitCode(String businessUnitCode) {
+
+    Warehouse w = warehouseStore.findByBusinessUnitCode(businessUnitCode);
+
+    if (w == null) {
+      throw new IllegalArgumentException("Warehouse not found");
     }
 
-    Warehouse existing = warehouseStore.findByBusinessUnitCode(warehouse.businessUnitCode);
-    if (existing == null) {
-      throw new IllegalArgumentException(
-              "Warehouse not found: " + warehouse.businessUnitCode
-      );
-    }
-
-    warehouseStore.remove(existing);
+    // idempotent delete
+    warehouseStore.archiveByBusinessUnitCode(w.getBusinessUnitCode());
   }
 }

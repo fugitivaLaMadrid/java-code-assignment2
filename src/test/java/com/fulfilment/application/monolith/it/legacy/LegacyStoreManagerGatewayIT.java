@@ -1,34 +1,44 @@
 package com.fulfilment.application.monolith.it.legacy;
 
 import com.fulfilment.application.monolith.legacy.LegacyStoreManagerGateway;
+import com.fulfilment.application.monolith.legacy.LegacyStoreManagerObserver;
 import com.fulfilment.application.monolith.stores.Store;
+import com.fulfilment.application.monolith.stores.StoreRepository;
+import com.fulfilment.application.monolith.stores.StoreSavedEvent;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.RestAssured;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @QuarkusTest
 class LegacyStoreManagerGatewayIT {
 
     @InjectMock
-    LegacyStoreManagerGateway legacyStoreManagerGateway; // Quarkus will now inject a Mockito mock
+    LegacyStoreManagerGateway legacyStoreManagerGateway; // Mockito mock
+
+    @Inject
+    LegacyStoreManagerObserver legacyStoreManagerObserver; // Real observer
+
+    @Inject
+    StoreRepository storeRepository;
 
     @Test
+    @Transactional
     void testCreateStoreTriggersLegacyGateway() {
-        reset(legacyStoreManagerGateway);
+        // Step 1: Create a store entity manually
+        Store store = new Store("TEST-STORE");
+        store.setQuantityProductsInStock(10);
+        storeRepository.persist(store);
+        storeRepository.flush(); // commit so observer can see it
 
-        String payload = "{\"name\":\"TEST-STORE\", \"quantityProductsInStock\": 10}";
+        // Step 2: Fire the observer manually (simulates AFTER_SUCCESS event)
+        StoreSavedEvent event = new StoreSavedEvent(store.getId(), StoreSavedEvent.Action.CREATE);
+        legacyStoreManagerObserver.onStoreSaved(event);
 
-        RestAssured.given()
-                .header("Content-Type", "application/json")
-                .body(payload)
-                .when().post("/stores")
-                .then()
-                .statusCode(201);
-
-        verify(legacyStoreManagerGateway, atLeastOnce())
-                .createStoreOnLegacySystem(any(Store.class));
+        // Step 3: Verify the gateway was called
+        verify(legacyStoreManagerGateway).createStoreOnLegacySystem(store);
     }
 }

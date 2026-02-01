@@ -1,5 +1,6 @@
 package com.fulfilment.application.monolith.warehouses.domain.usecases;
 
+import com.fulfilment.application.monolith.warehouses.adapters.database.JpaStore;
 import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.models.Location;
 import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
@@ -18,8 +19,8 @@ public class ReplaceWarehouseUseCase implements ReplaceWarehouseOperation {
    * Constructor injection (recommended)
    */
   @Inject
-  public ReplaceWarehouseUseCase(
-          WarehouseStore warehouseStore,
+  public ReplaceWarehouseUseCase(@JpaStore
+                                   WarehouseStore warehouseStore,
           LocationResolver locationResolver
   ) {
     this.warehouseStore = warehouseStore;
@@ -29,44 +30,44 @@ public class ReplaceWarehouseUseCase implements ReplaceWarehouseOperation {
   @Override
   public void replace(Warehouse warehouse) {
 
-    if (warehouse.businessUnitCode == null) {
+    if (warehouse.getBusinessUnitCode() == null) {
       throw new IllegalArgumentException("Business Unit Code must be provided");
     }
 
     Warehouse existing =
-            warehouseStore.findByBusinessUnitCode(warehouse.businessUnitCode);
+            warehouseStore.findByBusinessUnitCode(warehouse.getBusinessUnitCode());
 
     if (existing == null) {
       throw new IllegalArgumentException(
-              "Warehouse not found: " + warehouse.businessUnitCode);
+              "Warehouse not found: " + warehouse.getBusinessUnitCode());
     }
 
-    if (warehouse.location == null) {
+    if (warehouse.getLocation() == null) {
       throw new IllegalArgumentException("Location must be provided");
     }
 
     Location location;
     try {
-      location = locationResolver.resolveByIdentifier(warehouse.location);
+      location = locationResolver.resolveByIdentifier(warehouse.getLocation());
     } catch (Exception e) {
       throw new IllegalArgumentException(
-              "Invalid location: " + warehouse.location, e);
+              "Invalid location: " + warehouse.getLocation(), e);
     }
 
     if (location == null) {
       throw new IllegalArgumentException(
-              "Invalid location: " + warehouse.location);
+              "Invalid location: " + warehouse.getLocation());
     }
 
-    if (warehouse.capacity == null || warehouse.capacity <= 0) {
+    if (warehouse.getCapacity() == null || warehouse.getCapacity() <= 0) {
       throw new IllegalArgumentException("Capacity must be positive");
     }
 
-    if (warehouse.stock == null || warehouse.stock < 0) {
+    if (warehouse.getStock() == null || warehouse.getStock() < 0) {
       throw new IllegalArgumentException("Stock must be non-negative");
     }
 
-    if (warehouse.stock > warehouse.capacity) {
+    if (warehouse.getStock() > warehouse.getCapacity()) {
       throw new IllegalArgumentException(
               "Stock cannot exceed warehouse capacity");
     }

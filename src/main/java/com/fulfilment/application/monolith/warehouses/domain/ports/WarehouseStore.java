@@ -8,7 +8,9 @@ public interface WarehouseStore {
 
   void update(Warehouse warehouse);
 
-  void remove(Warehouse warehouse);
+  void archiveByBusinessUnitCode(String warehouse);
+
+  void save(Warehouse warehouse);
 
   Warehouse findByBusinessUnitCode(String buCode);
 
@@ -20,4 +22,5 @@ public interface WarehouseStore {
 
   // list warehouses at a location (non-archived)
   List<Warehouse> findByLocation(String location);
+
 }

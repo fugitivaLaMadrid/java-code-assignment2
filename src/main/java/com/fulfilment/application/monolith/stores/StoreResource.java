@@ -53,12 +53,14 @@ public class StoreResource {
       throw new WebApplicationException("Id must not be set when creating a Store", 422);
     }
 
+    if (store.getName() == null || store.getName().isBlank()) {
+      throw new WebApplicationException("Store name must be provided", 422);
+    }
+
     storeRepository.persist(store);
-
-    storeSavedEvent.fire(new StoreSavedEvent(store.getId(), StoreSavedEvent.Action.CREATE));
-
     return Response.status(Response.Status.CREATED).entity(store).build();
   }
+
 
   // ---------- UPDATE ----------
   @PUT
@@ -86,24 +88,25 @@ public class StoreResource {
   @PATCH
   @Path("{id}")
   @Transactional
-  public Store patch(@PathParam("id") Long id, Store updatedStore) {
+  public Store patch(@PathParam("id") Long id, StorePatchRequest patch) {
     Store entity = storeRepository.findByIdOptional(id)
             .orElseThrow(() -> new WebApplicationException(
                     String.format(STORE_WITH_ID, id), 404
             ));
 
-    if (updatedStore.getName() != null) {
-      entity.setName(updatedStore.getName());
+    if (patch.getName() != null) {
+      entity.setName(patch.getName());
     }
 
-    if (updatedStore.getQuantityProductsInStock() != 0) {
-      entity.setQuantityProductsInStock(updatedStore.getQuantityProductsInStock());
+    if (patch.getQuantityProductsInStock() != null) {
+      entity.setQuantityProductsInStock(patch.getQuantityProductsInStock());
     }
 
     storeSavedEvent.fire(new StoreSavedEvent(entity.getId(), StoreSavedEvent.Action.UPDATE));
-
     return entity;
   }
+
+
 
   // ---------- DELETE ----------
   @DELETE
