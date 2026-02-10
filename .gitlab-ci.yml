@@ -1,0 +1,26 @@
+image: eclipse-temurin:17-jdk
+
+stages:
+  - build
+
+cache:
+  paths:
+    - .m2/repository
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+build-and-test:
+  stage: build
+  script:
+    - chmod +x mvnw
+    - ./mvnw clean verify \
+      -Dit.test=StoreResourceIT,LocationGatewayIT,WarehouseEndpointIT \
+      -Dquarkus.coverage \
+      -Dquarkus.http.test-port=8085 \
+      -Dquarkus.profile=prod
+  artifacts:
+    when: always
+    paths:
+      - target/jacoco-report
+    expire_in: 7 days
