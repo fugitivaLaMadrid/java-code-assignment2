@@ -130,3 +130,15 @@ From a cost control perspective, reusing the Business Unit Code while archiving 
 
 Proper cost history preservation supports better budgeting, forecasting, and continuous improvement of fulfillment operations.
 ```
+
+### **Continuous Integration (CI) considerations:**
+
+A CI pipeline plays an important role in ensuring the reliability of integrations with financial systems. Automated builds and tests help validate that changes to cost calculation logic, data mappings, or integration contracts do not introduce regressions.
+
+In practice, a CI pipeline should:
+- Run unit and integration tests on every change.
+- Validate data transformation logic used for financial reporting.
+  - Ensure backward compatibility of APIs and events consumed by financial systems.
+- Provide fast feedback to developers before changes reach production.
+
+By enforcing automated verification early, CI reduces the risk of incorrect cost data propagating into financial systems, which could otherwise lead to reporting inconsistencies and costly manual corrections.

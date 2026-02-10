@@ -25,16 +25,13 @@ class ArchiveWarehouseUseCaseUnitTest {
     @Test
     void shouldArchiveWarehouse() {
         Warehouse w = new Warehouse();
-        w.setBusinessUnitCode( "WH-001");
+        w.setBusinessUnitCode("WH-001");
 
-        // Mock the store to return the warehouse
         when(store.findByBusinessUnitCode("WH-001")).thenReturn(w);
 
-        // Call the use case
         useCase.archiveByBusinessUnitCode("WH-001");
 
-        // Verify that archive() is called on the store
-        verify(store).archiveByBusinessUnitCode(w.getBusinessUnitCode());
+        verify(store).archiveByBusinessUnitCode("WH-001");
     }
 
     @Test
@@ -46,10 +43,9 @@ class ArchiveWarehouseUseCaseUnitTest {
                 () -> useCase.archiveByBusinessUnitCode("WH-999")
         );
 
-        assertEquals("Warehouse not found", ex.getMessage());
+        assertEquals("Warehouse not found: WH-999", ex.getMessage());
         verify(store, never()).archiveByBusinessUnitCode(any());
     }
-
 
     @Test
     void shouldAllowArchiveIfAlreadyArchived() {
@@ -59,24 +55,8 @@ class ArchiveWarehouseUseCaseUnitTest {
 
         when(store.findByBusinessUnitCode("WH-001")).thenReturn(w);
 
-        // should NOT throw
         useCase.archiveByBusinessUnitCode("WH-001");
 
-        verify(store).archiveByBusinessUnitCode(w.getBusinessUnitCode());
+        verify(store).archiveByBusinessUnitCode("WH-001");
     }
-
-//    @Test
-//    void shouldRejectIfAlreadyArchived() {
-//        Warehouse w = new Warehouse();
-//        w.businessUnitCode = "WH-002";
-//        w.archivedAt = java.time.ZonedDateTime.now();
-//
-//        when(store.findByBusinessUnitCode("WH-002")).thenReturn(w);
-//
-//        Exception ex = assertThrows(IllegalArgumentException.class,
-//                () -> useCase.archiveByBusinessUnitCode("WH-002"));
-//
-//        assertEquals("Warehouse not found or archived", ex.getMessage());
-//        verify(store, never()).archive(any());
-//    }
 }

@@ -17,6 +17,7 @@ import java.util.List;
 @JpaStore
 public class JpaWarehouseStore implements WarehouseStore {
 
+    private static final String BUSINESS_CODE = "buCode";
     private final EntityManager em;
     private final WarehouseRepository repository;
 
@@ -40,7 +41,7 @@ public class JpaWarehouseStore implements WarehouseStore {
     public void update(Warehouse warehouse) {
         DbWarehouse db = em.createQuery(
                         "SELECT w FROM DbWarehouse w WHERE w.businessUnitCode = :buCode", DbWarehouse.class)
-                .setParameter("buCode", warehouse.getBusinessUnitCode())
+                .setParameter(BUSINESS_CODE, warehouse.getBusinessUnitCode())
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
@@ -57,7 +58,7 @@ public class JpaWarehouseStore implements WarehouseStore {
     public Warehouse findByBusinessUnitCode(String buCode) {
         DbWarehouse db = em.createQuery(
                         "SELECT w FROM DbWarehouse w WHERE w.businessUnitCode = :buCode AND w.archivedAt IS NULL", DbWarehouse.class)
-                .setParameter("buCode", buCode)
+                .setParameter(BUSINESS_CODE, buCode)
                 .getResultStream()
                 .findFirst()
                 .orElse(null);
@@ -99,13 +100,14 @@ public class JpaWarehouseStore implements WarehouseStore {
     @Override
     @Transactional
     public void save(Warehouse warehouse) {
-        Warehouse existing = repository.findByBusinessUnitCode(warehouse.getBusinessUnitCode());
+        Warehouse existing = findByBusinessUnitCode(warehouse.getBusinessUnitCode());
         if (existing == null) {
             create(warehouse);
         } else {
             update(warehouse);
         }
     }
+
 
     @Override
     @Transactional
@@ -117,13 +119,16 @@ public class JpaWarehouseStore implements WarehouseStore {
         AND w.archivedAt IS NULL
     """)
                 .setParameter("now", LocalDateTime.now())
-                .setParameter("buCode", buCode)
+                .setParameter(BUSINESS_CODE, buCode)
                 .executeUpdate();
+
+        em.flush(); // ensure changes are visible in the persistence context
 
         if (updated == 0) {
             throw new IllegalArgumentException("Warehouse not found or already archived");
         }
     }
+
 
     // ---------------------- Helpers ----------------------
     private DbWarehouse toDbWarehouse(Warehouse w) {
