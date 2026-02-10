@@ -87,16 +87,12 @@ public class WarehouseResourceImpl implements WarehouseResource {
   @Override
   @Transactional
   public void deleteWarehouseUnitByBusinessUnitCode(String businessUnitCode) {
-    com.fulfilment.application.monolith.warehouses.domain.models.Warehouse domain =
-            new com.fulfilment.application.monolith.warehouses.domain.models.Warehouse();
-    domain.setBusinessUnitCode(businessUnitCode);
-
     try {
-      archiveWarehouseUseCase.archiveByBusinessUnitCode(domain.toString());
+      archiveWarehouseUseCase.archiveByBusinessUnitCode(businessUnitCode);
     } catch (IllegalArgumentException e) {
       throw new WebApplicationException(e.getMessage(), 404);
     }
-
   }
+
 
 }

@@ -1,13 +1,14 @@
 package com.fulfilment.application.monolith.warehouses.domain.usecases;
 
 import com.fulfilment.application.monolith.warehouses.adapters.database.JpaStore;
-import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.models.Location;
+import com.fulfilment.application.monolith.warehouses.domain.models.Warehouse;
 import com.fulfilment.application.monolith.warehouses.domain.ports.LocationResolver;
 import com.fulfilment.application.monolith.warehouses.domain.ports.ReplaceWarehouseOperation;
 import com.fulfilment.application.monolith.warehouses.domain.ports.WarehouseStore;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class ReplaceWarehouseUseCase implements ReplaceWarehouseOperation {
@@ -15,12 +16,9 @@ public class ReplaceWarehouseUseCase implements ReplaceWarehouseOperation {
   private final WarehouseStore warehouseStore;
   private final LocationResolver locationResolver;
 
-  /**
-   * Constructor injection (recommended)
-   */
   @Inject
-  public ReplaceWarehouseUseCase(@JpaStore
-                                   WarehouseStore warehouseStore,
+  public ReplaceWarehouseUseCase(
+          @JpaStore WarehouseStore warehouseStore,
           LocationResolver locationResolver
   ) {
     this.warehouseStore = warehouseStore;
@@ -28,50 +26,57 @@ public class ReplaceWarehouseUseCase implements ReplaceWarehouseOperation {
   }
 
   @Override
-  public void replace(Warehouse warehouse) {
+  @Transactional
+  public void replace(Warehouse newWarehouse) {
 
-    if (warehouse.getBusinessUnitCode() == null) {
-      throw new IllegalArgumentException("Business Unit Code must be provided");
-    }
-
+    // 1️ Existing warehouse must exist
     Warehouse existing =
-            warehouseStore.findByBusinessUnitCode(warehouse.getBusinessUnitCode());
+            warehouseStore.findByBusinessUnitCode(newWarehouse.getBusinessUnitCode());
 
     if (existing == null) {
       throw new IllegalArgumentException(
-              "Warehouse not found: " + warehouse.getBusinessUnitCode());
+              "Warehouse not found: " + newWarehouse.getBusinessUnitCode()
+      );
     }
 
-    if (warehouse.getLocation() == null) {
-      throw new IllegalArgumentException("Location must be provided");
+    // 2. Business Unit Code must be reused (replace, not create-new)
+    if (!existing.getBusinessUnitCode()
+            .equals(newWarehouse.getBusinessUnitCode())) {
+      throw new IllegalArgumentException("BusinessUnitCode cannot be changed");
     }
 
-    Location location;
-    try {
-      location = locationResolver.resolveByIdentifier(warehouse.getLocation());
-    } catch (Exception e) {
+    // 3. Stock must match (replace must not mutate stock)
+    if (existing.getStock() != null
+            && !existing.getStock().equals(newWarehouse.getStock())) {
       throw new IllegalArgumentException(
-              "Invalid location: " + warehouse.getLocation(), e);
+              "Stock mismatch: existing=" + existing.getStock()
+                      + ", new=" + newWarehouse.getStock()
+      );
     }
+
+    // 4.Location must exist
+    Location location =
+            locationResolver.resolveByIdentifier(newWarehouse.getLocation());
 
     if (location == null) {
       throw new IllegalArgumentException(
-              "Invalid location: " + warehouse.getLocation());
+              "Location not found: " + newWarehouse.getLocation()
+      );
     }
 
-    if (warehouse.getCapacity() == null || warehouse.getCapacity() <= 0) {
-      throw new IllegalArgumentException("Capacity must be positive");
-    }
-
-    if (warehouse.getStock() == null || warehouse.getStock() < 0) {
-      throw new IllegalArgumentException("Stock must be non-negative");
-    }
-
-    if (warehouse.getStock() > warehouse.getCapacity()) {
+    // 5. Capacity must fit within location limits
+    if (newWarehouse.getCapacity() > location.getMaxCapacity()) {
       throw new IllegalArgumentException(
-              "Stock cannot exceed warehouse capacity");
+              "Capacity exceeds location limit: "
+                      + newWarehouse.getCapacity()
+                      + " > " + location.getMaxCapacity()
+      );
     }
 
-    warehouseStore.update(warehouse);
+    // 6. Archive old warehouse
+    warehouseStore.archiveByBusinessUnitCode(existing.getBusinessUnitCode());
+
+    // 7. Create replacement warehouse (same BU code, new row)
+    warehouseStore.create(newWarehouse);
   }
 }

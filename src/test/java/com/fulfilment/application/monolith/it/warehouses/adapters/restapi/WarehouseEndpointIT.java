@@ -60,22 +60,25 @@ class WarehouseEndpointIT {
     @Test
     @Order(2)
     void testDeleteWarehouse() {
+        // Archive warehouse -> return 204
         given()
                 .when().delete("/" + createdWarehouse.getBusinessUnitCode())
                 .then()
-                .statusCode(404);
+                .statusCode(204);
 
-        LOGGER.info("----Deleted (archived) warehouse with BU code: " + createdWarehouse.getBusinessUnitCode());
+        LOGGER.info("----Archived warehouse with BU code: " + createdWarehouse.getBusinessUnitCode());
     }
 
     @Test
     @Order(3)
     void testVerifyWarehouseArchived() {
+        // GET on archived warehouse should return 404
         given()
                 .when().get("/" + createdWarehouse.getBusinessUnitCode())
                 .then()
-                .statusCode(200);
+                .statusCode(404);//404
 
-        LOGGER.info("=====Verified warehouse is archived/not found for BU code: " + createdWarehouse.getBusinessUnitCode());
+        LOGGER.info("=====Verified warehouse is archived (not found) for BU code: " + createdWarehouse.getBusinessUnitCode());
     }
+
 }
