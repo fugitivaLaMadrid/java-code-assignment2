@@ -13,8 +13,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Add Postgres as a service
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: example
+        ports:
+          - 15432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     env:
       MAVEN_OPTS: "-Xmx2g -Dquarkus.http.test-port=8085"
+      # Point Quarkus to the Postgres service
+      QUARKUS_DATASOURCE_URL: jdbc:postgresql://localhost:15432/postgres
+      QUARKUS_DATASOURCE_USERNAME: postgres
+      QUARKUS_DATASOURCE_PASSWORD: example
+      QUARKUS_DATASOURCE_DB_KIND: postgresql
 
     steps:
       - name: Checkout repository
@@ -37,6 +58,13 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+
+      - name: Wait for Postgres to be ready
+        run: |
+          echo "Waiting for Postgres..."
+          until pg_isready -h localhost -p 15432 -U postgres; do
+            sleep 2
+          done
 
       - name: Build and run all tests (unit + integration)
         run: |
