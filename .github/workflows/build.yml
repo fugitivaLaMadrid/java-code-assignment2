@@ -32,7 +32,7 @@ jobs:
     env:
       MAVEN_OPTS: "-Xmx2g -Dquarkus.http.test-port=8085"
       # Point Quarkus to the Postgres service
-      QUARKUS_DATASOURCE_URL: jdbc:postgresql://localhost:15432/postgres
+      QUARKUS_DATASOURCE_URL: jdbc:postgresql://localhost:5432/postgres
       QUARKUS_DATASOURCE_USERNAME: postgres
       QUARKUS_DATASOURCE_PASSWORD: example
       QUARKUS_DATASOURCE_DB_KIND: postgresql
