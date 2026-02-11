@@ -33,8 +33,7 @@ jobs:
       QUARKUS_DATASOURCE_DB_KIND: postgresql
       QUARKUS_DATASOURCE_USERNAME: postgres
       QUARKUS_DATASOURCE_PASSWORD: example
-      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/postgres
-
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://localhost:5432/postgres
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -57,7 +56,7 @@ jobs:
 
       - name: Wait for Postgres
         run: |
-          until pg_isready -h postgres -p 5432 -U postgres; do
+          until pg_isready -h localhost -p 5432 -U postgres; do
             echo "Waiting for postgres..."
             sleep 2
           done
