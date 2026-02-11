@@ -13,7 +13,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # Add Postgres as a service
     services:
       postgres:
         image: postgres:15-alpine
@@ -22,20 +21,20 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: example
         ports:
-          - 15432:5432
+          - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
 
     env:
-      MAVEN_OPTS: "-Xmx2g -Dquarkus.http.test-port=8085"
-      # Point Quarkus to the Postgres service
+      MAVEN_OPTS: "-Xmx2g"
       QUARKUS_DATASOURCE_DB_KIND: postgresql
       QUARKUS_DATASOURCE_USERNAME: postgres
       QUARKUS_DATASOURCE_PASSWORD: example
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/postgres
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,30 +51,27 @@ jobs:
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.m2/repository
+          path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          restore-keys: ${{ runner.os }}-maven-
 
-      - name: Wait for Postgres to be ready
+      - name: Wait for Postgres
         run: |
-          echo "Waiting for Postgres..."
-          until pg_isready -h localhost -p 15432 -U postgres; do
+          until pg_isready -h postgres -p 5432 -U postgres; do
+            echo "Waiting for postgres..."
             sleep 2
           done
 
-      - name: Build and run all tests (unit + integration)
+      - name: Build and run tests
         run: |
           ./mvnw clean verify \
             -Dquarkus.coverage=true \
-            -Dquarkus.profile=test \
-            -Dquarkus.http.test-port=8085
+            -Dquarkus.profile=test
 
-      - name: Generate JaCoCo HTML Report
+      - name: Generate JaCoCo report
         run: ./mvnw jacoco:report
 
-      - name: Upload JaCoCo report as artifact
+      - name: Upload JaCoCo report
         uses: actions/upload-artifact@v4
         with:
           name: jacoco-report
